@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Player Zone">
+<meta name="theme-color" content="#0a0a0f">
+<title>Player Zone</title>
+<link rel="manifest" href="./player-manifest.json">
+<link rel="apple-touch-icon" href="./player-icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0f;color:#f0f0f0;min-height:100vh;overscroll-behavior:none}
+:root{--accent:#00e5ff;--accent2:#ff4d4d;--green:#39ff14;--surface:#13131a;--surface2:#1c1c26;--surface3:#24242f;--border:#2a2a38;--text:#f0f0f0;--muted:#8888a0}
+.app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.topbar{background:#0a0a0f;border-bottom:1px solid var(--border);padding:0 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;height:56px;padding-top:env(safe-area-inset-top)}
+.logo-wrap{flex:1;min-width:0}
+.logo{font-size:18px;font-weight:800;letter-spacing:-0.5px;color:var(--accent)}
+.logo span{color:var(--text)}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:0.5px;margin-top:1px}
+.age-badge{background:var(--surface3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--accent);white-space:nowrap;flex-shrink:0;font-weight:700}
+.nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 10px;border:none;background:transparent;color:var(--muted);font-size:9px;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;min-width:52px}
+.nav-btn i{font-size:20px}
+.nav-btn.active{color:var(--accent)}
+.content{flex:1;overflow-y:auto;padding:16px;padding-bottom:28px;-webkit-overflow-scrolling:touch}
+.section-title{font-size:22px;font-weight:800;margin-bottom:4px;letter-spacing:-0.5px}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;cursor:pointer;transition:all 0.15s;font-family:inherit}
+.btn:active{transform:scale(0.97)}
+.btn-accent{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.btn-green{background:var(--green);color:#000;border-color:var(--green);font-weight:700}
+.btn-sm{padding:7px 12px;font-size:12px;border-radius:8px}
+.btn-full{width:100%;justify-content:center}
+.btn-danger{background:rgba(255,77,77,0.12);color:#ff4d4d;border-color:rgba(255,77,77,0.3)}
+.input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;outline:none;font-family:inherit;-webkit-appearance:none}
+.input:focus{border-color:var(--accent)}
+.select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;outline:none;cursor:pointer;font-family:inherit;-webkit-appearance:none}
+.select:focus{border-color:var(--accent)}
+.textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;outline:none;resize:vertical;min-height:80px;font-family:inherit;-webkit-appearance:none}
+.textarea:focus{border-color:var(--accent)}
+.form-row{margin-bottom:12px}
+.form-label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
+/* Profile */
+.profile-hero{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;position:relative}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:rgba(0,229,255,0.12);border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--accent);margin:0 auto 12px}
+.profile-name{font-size:20px;font-weight:800;margin-bottom:2px}
+.profile-pos{font-size:13px;color:var(--muted);margin-bottom:10px}
+.profile-stats{display:flex;justify-content:center;gap:20px;margin-top:10px}
+.pstat{text-align:center}
+.pstat-num{font-size:22px;font-weight:800;color:var(--accent)}
+.pstat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+/* Age brackets */
+.age-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.age-card{background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s}
+.age-card.selected{border-color:var(--accent);background:rgba(0,229,255,0.06)}
+.age-card-icon{font-size:28px;margin-bottom:6px}
+.age-card-label{font-size:13px;font-weight:700}
+.age-card-range{font-size:11px;color:var(--muted);margin-top:2px}
+/* Drills */
+.drill-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;position:relative}
+.drill-item.done{border-color:var(--green);background:rgba(57,255,20,0.05)}
+.drill-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.drill-icon{width:36px;height:36px;border-radius:8px;background:rgba(0,229,255,0.12);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.drill-title{font-size:14px;font-weight:700;flex:1}
+.drill-meta{font-size:11px;color:var(--muted);margin-bottom:8px}
+.drill-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.drill-done-badge{position:absolute;top:12px;right:12px;background:var(--green);color:#000;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700}
+/* Progress */
+.goal-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.goal-title{font-size:14px;font-weight:600}
+.goal-pct{font-size:13px;font-weight:700;color:var(--accent)}
+.goal-bar{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.goal-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.4s}
+.goal-fill.green{background:var(--green)}
+.tab-pills{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab-pill{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+.tab-pill.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+/* AI */
+.ai-bubble{background:var(--surface2);border:1px solid var(--border);border-radius:14px;border-top-left-radius:4px;padding:14px;margin-bottom:10px;font-size:14px;line-height:1.7}
+.ai-bubble.user{background:rgba(0,229,255,0.06);border-color:rgba(0,229,255,0.2);border-radius:14px;border-top-right-radius:4px;margin-left:24px;font-size:13px}
+.ai-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.loading-dots::after{content:'...';animation:dots 1.2s steps(4,end) infinite}
+@keyframes dots{0%,100%{content:'.'}33%{content:'..'}66%{content:'...'}}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.empty-state{text-align:center;padding:32px 20px;color:var(--muted)}
+.empty-state i{font-size:36px;margin-bottom:10px;display:block;color:var(--accent)}
+/* Position tips */
+.pos-tip{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px;font-size:13px;line-height:1.6}
+.pos-tip-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.big-num{font-size:36px;font-weight:800;color:var(--accent)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.stat-card-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.count-badge{background:var(--surface3);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--muted);margin-left:6px}
+.setup-card{background:var(--surface2);border:2px dashed var(--border);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px}
+.setup-icon{font-size:48px;color:var(--accent);margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo-wrap">
+      <div class="logo">PLAYER <span>ZONE</span></div>
+      <div class="logo-sub">Top Training, For all Levels</div>
+    </div>
+    <div class="age-badge" id="age-badge">SET UP</div>
+  </div>
+  <div class="nav" id="nav"></div>
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+const TABS=[
+  {id:'profile',label:'Profile',icon:'ti-user'},
+  {id:'drills',label:'Drills',icon:'ti-run'},
+  {id:'progress',label:'Progress',icon:'ti-chart-line'},
+  {id:'tips',label:'Position Tips',icon:'ti-bulb'},
+  {id:'ai',label:'AI Plan',icon:'ti-brain'},
+];
+
+const POSITIONS=['Goalkeeper','Centre Back','Full Back','Defensive Mid','Central Mid','Attacking Mid','Winger','Striker'];
+
+const AGE_BRACKETS=[
+  {id:'kids',label:'Kids',range:'5–11',icon:'⚽',color:'#39ff14'},
+  {id:'u14',label:'Under 14',range:'12–13',icon:'🏃',color:'#00e5ff'},
+  {id:'u16',label:'Under 16',range:'14–15',icon:'💪',color:'#ff9f4d'},
+  {id:'u18',label:'Under 18',range:'16–17',icon:'🔥',color:'#ff4d4d'},
+  {id:'adult',label:'Adult',range:'18–35',icon:'⚡',color:'#a855f7'},
+  {id:'vet',label:'Veteran',range:'35+',icon:'🎯',color:'#e8ff3c'},
+];
+
+const DRILLS_BY_AGE = {
+  kids:[
+    {id:1,name:'Ball Juggling Challenge',mins:5,intensity:'Low',icon:'ti-ball-football',desc:'Keep the ball in the air using feet, thighs and head. Count your record each session. Try to beat it next time!',focus:'Touch & coordination'},
+    {id:2,name:'Cone Dribble Slalom',mins:8,intensity:'Medium',icon:'ti-arrow-wave-right-up',desc:'Set out 6 cones in a line, 1m apart. Dribble in and out as fast as you can. Time yourself each run!',focus:'Close control'},
+    {id:3,name:'Wall Passing',mins:10,intensity:'Low',icon:'ti-arrows-exchange',desc:'Stand 3m from a wall. Pass and control 20 times with each foot. Focus on a clean touch every time.',focus:'Passing & first touch'},
+    {id:4,name:'Target Shooting',mins:10,intensity:'Medium',icon:'ti-target',desc:'Place 3 cones as targets in different corners of a small goal. Try to hit each target 5 times. Both feet!',focus:'Shooting accuracy'},
+    {id:5,name:'Speed Ladder Fun',mins:8,intensity:'High',icon:'ti-ladder',desc:'In-out steps through a ladder or chalk marks on ground. Do 4 different patterns, 3 runs each. Have fun with it!',focus:'Footwork & agility'},
+    {id:6,name:'Toe Taps on Ball',mins:5,intensity:'Low',icon:'ti-ball-football',desc:'Place ball on the ground. Alternate tapping the top of the ball with each foot as fast as you can. Count to 50!',focus:'Balance & coordination'},
+    {id:7,name:'Inside-Outside Touches',mins:8,intensity:'Low',icon:'ti-arrows-left-right',desc:'Walk forward using inside then outside of foot to move ball side to side. Keep the ball close. 2 lengths of the garden.',focus:'Ball manipulation'},
+    {id:8,name:'Pass & Chase',mins:10,intensity:'Medium',icon:'ti-run',desc:'Pass the ball against a wall or to a partner, then sprint to a cone 10m away and back before the ball returns. 15 reps.',focus:'Passing & movement'},
+    {id:9,name:'Shooting Fun',mins:10,intensity:'Medium',icon:'ti-target-arrow',desc:'Set up a small goal. Take 10 shots from 8m using your strong foot, then 10 with your weak foot. Count your goals!',focus:'Shooting confidence'},
+    {id:10,name:'Stop & Go Dribble',mins:8,intensity:'Medium',icon:'ti-player-pause',desc:'Dribble freely in a 10x10 area. When you call "stop" to yourself, freeze, look up, then go again. Builds awareness.',focus:'Dribbling & awareness'},
+    {id:11,name:'Catch & Throw Heading',mins:8,intensity:'Low',icon:'ti-arrow-up',desc:'Throw the ball up to yourself and head it back into your hands. Focus on using your forehead. 20 reps.',focus:'Heading basics'},
+    {id:12,name:'Square Cone Dribble',mins:10,intensity:'Medium',icon:'ti-square',desc:'Set 4 cones in a square, 5m apart. Dribble to each cone, stop the ball with your sole, turn and go to the next. 5 laps.',focus:'Control & turning'},
+    {id:13,name:'Passing Accuracy Targets',mins:10,intensity:'Low',icon:'ti-circles-relation',desc:'Set up 5 cones 10m away as targets. Pass the ball at each cone trying to hit it. Record your score out of 5 each round.',focus:'Passing accuracy'},
+    {id:14,name:'Hopscotch Footwork',mins:8,intensity:'High',icon:'ti-jump-rope',desc:'Mark a hopscotch grid with cones. Jump through on both feet, then single foot. Add a ball dribble for the advanced version.',focus:'Agility & coordination'},
+    {id:15,name:'Cool-Down Juggle',mins:5,intensity:'Low',icon:'ti-ball-football',desc:'End every session with 5 minutes of relaxed juggling. No pressure — just enjoy the ball. Try new tricks!',focus:'Touch & enjoyment'},
+  ],
+  u14:[
+    {id:16,name:'1v1 Cone Gates',mins:10,intensity:'High',icon:'ti-circles-relation',desc:'Set 4 cone gates in a 15x15 area. Dribble through as many gates as possible in 60s. Rest 30s. 5 reps.',focus:'Dribbling under pressure'},
+    {id:17,name:'Passing Pattern: Triangle',mins:12,intensity:'Medium',icon:'ti-triangle',desc:'3 cones in a triangle 8m apart. Pass, follow your pass, and receive at the next cone. Progress to one touch.',focus:'Combination play'},
+    {id:18,name:'Shooting From Range',mins:12,intensity:'Medium',icon:'ti-target-arrow',desc:'6 balls at 6 different positions outside the box. Strike each with purpose. Technique first, power second.',focus:'Finishing technique'},
+    {id:19,name:'Agility T-Drill',mins:10,intensity:'High',icon:'ti-letters-t',desc:'Sprint forward 10m, side shuffle 5m left, shuffle 10m right, shuffle back, backpedal to start. Time every rep.',focus:'Acceleration & change of direction'},
+    {id:20,name:'Receiving Under Pressure',mins:10,intensity:'Medium',icon:'ti-hand-stop',desc:'Have someone serve balls from different angles. Control, turn and play back. 30 reps each side. Stay on your toes.',focus:'First touch & turning'},
+    {id:21,name:'Wall Pass Series',mins:10,intensity:'Medium',icon:'ti-arrows-exchange',desc:'Against a wall: inside pass, outside pass, laces. 20 reps each technique with both feet. Crisp and accurate.',focus:'Passing technique'},
+    {id:22,name:'Weak Foot Walls',mins:10,intensity:'Low',icon:'ti-foot-print',desc:'20 minutes of wall passing using your weak foot only. Start slow, build confidence. This is the most important drill you can do.',focus:'Weak foot development'},
+    {id:23,name:'Reactive Sprint Drill',mins:10,intensity:'High',icon:'ti-run',desc:'Stand with back to start line. On a signal, turn and sprint 20m. 8 reps. Works on reaction time and explosive start.',focus:'Reaction speed'},
+    {id:24,name:'Juggling Challenge',mins:8,intensity:'Low',icon:'ti-ball-football',desc:'Beat your juggling record from last session. Try: feet only, thigh only, alternate feet-thigh, head sequence.',focus:'Touch & coordination'},
+    {id:25,name:'Box to Box Stamina',mins:12,intensity:'High',icon:'ti-arrows-up-down',desc:'Mark two lines 30m apart. Jog one way, stride back, sprint both. Repeat 6 times with 45s rest. Builds match fitness.',focus:'Stamina & endurance'},
+    {id:26,name:'Cruyff Turn & Shoot',mins:10,intensity:'Medium',icon:'ti-rotate-clockwise',desc:'Receive a pass, execute a Cruyff turn away from a cone "defender", and shoot on goal. 10 reps each side.',focus:'Turning & shooting'},
+    {id:27,name:'Lateral Cone Hops',mins:8,intensity:'High',icon:'ti-arrows-left-right',desc:'5 cones in a line, 50cm apart. Hop sideways over each cone on both feet. Then single leg. 4 runs each.',focus:'Lateral quickness'},
+    {id:28,name:'Lofted Pass Practice',mins:10,intensity:'Low',icon:'ti-arrow-up',desc:'From 20m, practice lofted passes to land on a target area. Lean back, strike through the bottom half of the ball. 15 reps.',focus:'Long passing'},
+    {id:29,name:'First Time Finishing',mins:12,intensity:'Medium',icon:'ti-target',desc:'Have someone cross or pass to you in the box. Finish first time every rep. Work both feet. 20 finishes total.',focus:'First-time finishing'},
+    {id:30,name:'5m Sprint Starts',mins:10,intensity:'High',icon:'ti-player-play',desc:'From various starting positions: seated, lying, back-to-goal. Explode into a 5m sprint. 12 reps. Pure acceleration.',focus:'Explosive acceleration'},
+  ],
+  u16:[
+    {id:31,name:'Sprint Mechanics Circuit',mins:12,intensity:'High',icon:'ti-run',desc:'High knees 20m, bounding 20m, sprint 30m, walk back. 6 sets. Focus on arm drive and forward lean.',focus:'Speed & power'},
+    {id:32,name:'Weak Foot Training',mins:15,intensity:'Medium',icon:'ti-foot-print',desc:'All passing, receiving and shooting with weak foot only. 20 passes, 10 shots, 5 mins dribbling. Do this every session.',focus:'Technical development'},
+    {id:33,name:'Crossing & Finishing',mins:15,intensity:'Medium',icon:'ti-arrows-cross',desc:'Serve crosses from both wings to finishing zones. 10 deliveries each side. Attack the ball with conviction.',focus:'Aerial & finishing'},
+    {id:34,name:'Pressing Solo Runs',mins:10,intensity:'High',icon:'ti-player-track-next',desc:'Sprint 15m to "press" a cone, recover 10m, sprint again. 8 reps each side. Simulate real match pressing intensity.',focus:'Pressing & recovery runs'},
+    {id:35,name:'Decision Gate Drill',mins:12,intensity:'Medium',icon:'ti-git-branch',desc:'Have someone call a colour gate as you approach with the ball. React and drive through the correct gate. 20 reps.',focus:'Decision making'},
+    {id:36,name:'Plyometric Ladder',mins:12,intensity:'High',icon:'ti-ladder',desc:'Single leg hops, double leg hops, in-out, lateral shuffles. 3 runs of each pattern. Focus on ground contact time.',focus:'Explosive power'},
+    {id:37,name:'Turn & Shoot Combinations',mins:12,intensity:'Medium',icon:'ti-rotate-clockwise',desc:'Receive with back to goal, turn with inside or outside hook, shoot. Rotate through 5 different turns. 15 reps.',focus:'Turning & finishing'},
+    {id:38,name:'Heading Accuracy',mins:10,intensity:'Medium',icon:'ti-arrow-up',desc:'Have someone throw the ball up from 3m away. Head down into target zones on the ground. 20 headers, both sides.',focus:'Heading technique'},
+    {id:39,name:'Full Sprint Intervals',mins:15,intensity:'High',icon:'ti-heart-rate-monitor',desc:'Sprint 40m at full pace. Walk back. Rest 45s. Repeat 10 times. Builds true speed endurance for match play.',focus:'Speed endurance'},
+    {id:40,name:'Dribble & Cut Drill',mins:10,intensity:'Medium',icon:'ti-arrow-wave-right-up',desc:'Dribble at pace toward a cone, cut inside with a stepover, then outside, then go. Repeat 3 different moves. 20 reps.',focus:'1v1 moves'},
+    {id:41,name:'Long Range Shooting',mins:12,intensity:'Medium',icon:'ti-target-arrow',desc:'Strike from 25m. Focus on technique: standing foot, hip rotation, follow-through. Record how many hit the target.',focus:'Shooting power & accuracy'},
+    {id:42,name:'Defensive Shape Solo',mins:10,intensity:'Low',icon:'ti-shield',desc:'Mark out positions of your defensive unit with cones. Move through each position and defensive scenario 15 times.',focus:'Positional defending'},
+    {id:43,name:'Reaction Ball Drill',mins:10,intensity:'High',icon:'ti-bounce-right',desc:'Throw a ball hard against a wall at an angle, then react and control whatever comes back. 40 touches. Stay sharp.',focus:'Reaction & first touch'},
+    {id:44,name:'Nordic Hamstring Curl',mins:10,intensity:'Medium',icon:'ti-arrow-down',desc:'Kneel on soft surface, feet anchored. Lower your body slowly to the ground using hamstrings. 3 sets of 6. Injury prevention gold.',focus:'Hamstring strength'},
+    {id:45,name:'Box Jump Circuit',mins:12,intensity:'High',icon:'ti-arrow-up',desc:'Jump onto a sturdy box or step: two-foot jump, single leg left, single leg right. 3x10 each. Builds explosive leg power.',focus:'Explosive jumping'},
+  ],
+  u18:[
+    {id:46,name:'Match Fitness Intervals',mins:15,intensity:'High',icon:'ti-heart-rate-monitor',desc:'90s at high intensity running, 30s jog. Repeat 8 times. Mirrors exact match demands of a competitive 90 minutes.',focus:'Match fitness'},
+    {id:47,name:'Power Shooting',mins:12,intensity:'High',icon:'ti-arrow-big-right',desc:'Strike from outside box. Focus on hip rotation, standing foot placement, and full follow-through. 15 strikes each foot.',focus:'Striking power'},
+    {id:48,name:'Positional Pattern Runs',mins:15,intensity:'Medium',icon:'ti-route',desc:'Map out your position\'s 5 most common runs from a real match. Practice each run 10 times with and without the ball.',focus:'Positional awareness'},
+    {id:49,name:'Plyometric Circuit',mins:12,intensity:'High',icon:'ti-bounce-right',desc:'Box jumps x10, broad jumps x10, lateral bounds x10, squat jumps x10. 3 rounds, 60s rest between. Power development.',focus:'Explosive power'},
+    {id:50,name:'1v1 Defending',mins:12,intensity:'High',icon:'ti-shield',desc:'Attacker vs defender in a 12x8 zone. Defender delays, stays low, does not dive in. 90s bouts, rotate roles.',focus:'Defensive technique'},
+    {id:51,name:'Weak Foot Finishing',mins:12,intensity:'Medium',icon:'ti-foot-print',desc:'10 shots inside box, 10 from range, all weak foot. No excuses — elite players are two-footed. Track your record.',focus:'Weak foot finishing'},
+    {id:52,name:'High Intensity Dribbling',mins:12,intensity:'High',icon:'ti-arrow-wave-right-up',desc:'Full pace dribbling through a cone course. 8 different courses, 3 runs each. Compete against your own best time.',focus:'Dribbling at pace'},
+    {id:53,name:'Crossing Accuracy',mins:12,intensity:'Medium',icon:'ti-arrows-cross',desc:'From the byline and cutback position. Aim for zones: near post, far post, penalty spot. 10 crosses from each position.',focus:'Delivery quality'},
+    {id:54,name:'Pre-Season Stamina Run',mins:20,intensity:'High',icon:'ti-run',desc:'Run at 70% effort for 20 mins non-stop. This is your base fitness builder. Do it twice a week pre-season.',focus:'Aerobic base'},
+    {id:55,name:'Receiving on the Half-Turn',mins:12,intensity:'Medium',icon:'ti-rotate',desc:'Open your body to receive across the front foot. Practice 30 times — receive, scan, play forward. The key skill for midfielders.',focus:'Receiving technique'},
+    {id:56,name:'Resistance Band Sprints',mins:10,intensity:'High',icon:'ti-run',desc:'Sprint 20m against resistance band (or partner). 8 reps. Builds acceleration mechanics and quad/glute power.',focus:'Acceleration'},
+    {id:57,name:'Shooting Under Pressure',mins:12,intensity:'High',icon:'ti-target-arrow',desc:'Sprint 25m, receive a pass and shoot in one motion. No time to settle — replicate a real match scenario. 12 reps.',focus:'Composure in front of goal'},
+    {id:58,name:'Core Power Circuit',mins:12,intensity:'Medium',icon:'ti-body-scan',desc:'Cable rotations x12, dead bug x10, hanging knee raise x12, pallof press x10 each side. 3 rounds. Core for football.',focus:'Core strength'},
+    {id:59,name:'Set Piece Delivery',mins:12,intensity:'Low',icon:'ti-arrow-curve-right',desc:'Practice corner delivery to near post, far post, and short. 10 each. Then free kick curling over the wall. 15 reps.',focus:'Set piece quality'},
+    {id:60,name:'Cool-Down & Stretch',mins:10,intensity:'Low',icon:'ti-yoga',desc:'Hip flexor stretch 60s each, quad stretch, hamstring, calf, and thoracic rotation. Non-negotiable after every session.',focus:'Recovery & flexibility'},
+  ],
+  adult:[
+    {id:61,name:'Rondo Solo Touches',mins:10,intensity:'Medium',icon:'ti-ball-football',desc:'Against a wall or rebounder: 100 touches alternating feet. Track your longest no-mistake sequence each session.',focus:'Technical sharpness'},
+    {id:62,name:'5-10-5 Shuttle',mins:12,intensity:'High',icon:'ti-arrows-left-right',desc:'Sprint 5m right, 10m left, 5m back. 8 reps, 30s rest. The best single drill for change of direction speed.',focus:'Agility & speed'},
+    {id:63,name:'Finishing Under Fatigue',mins:15,intensity:'High',icon:'ti-run',desc:'Sprint 30m, receive and shoot first time. 10 reps. Replicates end-of-match finishing when your legs are gone.',focus:'Composure & finishing'},
+    {id:64,name:'Combination Patterns',mins:15,intensity:'Medium',icon:'ti-arrows-shuffle',desc:'Wall pass → overlap → cutback using cones solo. 10 reps each side. Progress to include a finish on the last action.',focus:'Movement & combination'},
+    {id:65,name:'Core & Stability Circuit',mins:12,intensity:'Medium',icon:'ti-body-scan',desc:'Plank 45s, side plank 30s each, dead bug x10, pallof press x10 each. 3 rounds. Protects your back and improves power.',focus:'Core strength'},
+    {id:66,name:'Weak Foot Wall Work',mins:12,intensity:'Low',icon:'ti-foot-print',desc:'100 wall passes using weak foot only. Short, medium and long range. Consistency is more important than power.',focus:'Weak foot development'},
+    {id:67,name:'Aerobic Intervals',mins:15,intensity:'High',icon:'ti-heart-rate-monitor',desc:'2 mins at 80% effort, 1 min jog. Repeat 5 times. Builds the aerobic capacity to play 90 minutes at intensity.',focus:'Cardiovascular fitness'},
+    {id:68,name:'Technical Juggling',mins:8,intensity:'Low',icon:'ti-ball-football',desc:'Juggle for quality — both feet, thigh, head, outside of foot. Try 3-touch sequences in patterns. 10 mins on the ball.',focus:'Technical touch'},
+    {id:69,name:'Box Movement Circuit',mins:12,intensity:'High',icon:'ti-square',desc:'Mark a 5m square. Sprint each side, shuffle diagonally, backpedal. 3 circuits, 45s rest. Builds multi-directional movement.',focus:'Movement & agility'},
+    {id:70,name:'Long Passing Accuracy',mins:12,intensity:'Low',icon:'ti-arrow-up',desc:'From 30m, aim lofted passes to land in a 2m target zone. 20 passes each foot. Accuracy beats power every time.',focus:'Long passing'},
+    {id:71,name:'Heading Practise',mins:10,intensity:'Medium',icon:'ti-arrow-up',desc:'Throw ball up and head into a target zone. Then head from a crossed ball. Attack the ball, use forehead. 25 headers.',focus:'Heading'},
+    {id:72,name:'Hip Mobility Routine',mins:10,intensity:'Low',icon:'ti-yoga',desc:'Hip flexor stretch, pigeon pose, hip circles, lateral lunges. 60s each. Most adult players neglect this — don\'t.',focus:'Mobility & injury prevention'},
+    {id:73,name:'Reactive 1v1 Drill',mins:12,intensity:'High',icon:'ti-circles-relation',desc:'Both players start back-to-back at a cone. Coach calls a side — both sprint round and the first to control a ball wins. 10 reps.',focus:'Reaction & 1v1 speed'},
+    {id:74,name:'Power Shooting Drill',mins:12,intensity:'High',icon:'ti-target-arrow',desc:'20m run-up to a ball. Hit it as hard and accurate as you can. Work both feet. Focus on technique producing power.',focus:'Striking power'},
+    {id:75,name:'Cooldown Stretch',mins:10,intensity:'Low',icon:'ti-heart',desc:'Quad, hamstring, hip flexor, calf and thoracic stretch. Hold each 45-60s. As an adult player this is not optional.',focus:'Recovery'},
+  ],
+  vet:[
+    {id:76,name:'Mobility Warm-Up',mins:10,intensity:'Low',icon:'ti-yoga',desc:'Hip circles, leg swings, ankle rotations, thoracic rotations. 10 reps each. Non-negotiable before any football activity.',focus:'Injury prevention'},
+    {id:77,name:'Technical Possession',mins:15,intensity:'Low',icon:'ti-ball-football',desc:'Wall passing, juggling and cone dribble. Low intensity, high quality. 30 mins minimum on ball per week keeps you sharp.',focus:'Technical maintenance'},
+    {id:78,name:'Low Impact Cardio Intervals',mins:15,intensity:'Medium',icon:'ti-heart',desc:'Brisk walk 2 mins, jog 1 min. Repeat 5 times. Builds aerobic base without putting stress on joints.',focus:'Cardiovascular fitness'},
+    {id:79,name:'Balance & Proprioception',mins:10,intensity:'Low',icon:'ti-topology-star',desc:'Single leg balance 30s each, single leg deadlift 10 reps each. Reduces ankle and knee injury risk significantly.',focus:'Balance & stability'},
+    {id:80,name:'Shooting Technique',mins:12,intensity:'Low',icon:'ti-target',desc:'Slow motion shooting practice. Set up 10 balls, shoot each with full focus on technique. Quality over speed every time.',focus:'Technical finishing'},
+    {id:81,name:'Foam Roller Routine',mins:10,intensity:'Low',icon:'ti-arrow-down',desc:'IT band, quads, calves, glutes and thoracic spine. 60s on each area. Do this before and after training for best results.',focus:'Recovery & mobility'},
+    {id:82,name:'Short Passing Circuit',mins:12,intensity:'Low',icon:'ti-arrows-exchange',desc:'Wall passing at close range — focus on cushioned control and crisp delivery. 100 passes, both feet. No rushing.',focus:'Passing quality'},
+    {id:83,name:'Walking Interval Run',mins:15,intensity:'Medium',icon:'ti-run',desc:'Walk 3 mins, run at comfortable pace 2 mins. Repeat 3 times. Good base fitness maintenance without overloading joints.',focus:'Aerobic base'},
+    {id:84,name:'Strengthening Circuit',mins:12,intensity:'Medium',icon:'ti-barbell',desc:'Bodyweight squats x15, glute bridges x15, calf raises x20, side-lying clamshells x15 each. 2 rounds. Protects knees and hips.',focus:'Injury prevention strength'},
+    {id:85,name:'Dribbling Control',mins:10,intensity:'Low',icon:'ti-arrow-wave-right-up',desc:'Slow dribbling through cones. No rush — focus on perfect touch, head up, using both feet naturally. 10 mins.',focus:'Close control'},
+    {id:86,name:'First Touch Practice',mins:10,intensity:'Low',icon:'ti-hand-stop',desc:'Throw or kick ball against wall. Control every return with different surfaces — inside, outside, sole, thigh. 60 touches.',focus:'First touch'},
+    {id:87,name:'Heading Technique',mins:8,intensity:'Low',icon:'ti-arrow-up',desc:'Gentle heading practice from a slow serve. Focus on meeting the ball with forehead, eyes open. 15 headers. No power needed.',focus:'Heading safely'},
+    {id:88,name:'Yoga for Footballers',mins:15,intensity:'Low',icon:'ti-yoga',desc:'Downward dog, warrior I and II, pigeon pose, child\'s pose. Hold 60s each. Adds flexibility older players desperately need.',focus:'Flexibility & recovery'},
+    {id:89,name:'Set Piece Delivery',mins:12,intensity:'Low',icon:'ti-arrow-curve-right',desc:'Practice corner and free kick delivery at comfortable pace. Focus on technique and placement, not power. 20 reps.',focus:'Technical set pieces'},
+    {id:90,name:'Cool-Down Walk & Stretch',mins:10,intensity:'Low',icon:'ti-heart',desc:'5 min gentle walk, then full body stretch. Hamstrings, hip flexors, quads, calves, lower back. Hold each 60s. Always do this.',focus:'Cool-down & recovery'},
+  ],
+};
+
+const POSITION_TIPS = {
+  'Goalkeeper':[
+    {title:'Positioning',tip:'Always be on the half-way line between the ball and the centre of your goal. Set your position before every pass in the build-up.'},
+    {title:'Distribution',tip:'Your feet are as important as your hands. Practice short passes, long kicks and throws to build out from the back.'},
+    {title:'Decision Making',tip:'Call "keeper" early and loud. Hesitation causes collisions. Own your box — communicate constantly with defenders.'},
+    {title:'Gym Focus',tip:'Explosive hip hinge (deadlifts, kettlebell swings) and lateral bounds. GKs need power in all directions, not just vertical.'},
+  ],
+  'Centre Back':[
+    {title:'Positioning',tip:'Never both centre backs go to the ball. One engages, one covers. Hold your shape and communicate with your partner.'},
+    {title:'Distribution',tip:'Scan before you receive. Know your next pass before the ball arrives. Play simple under pressure, direct when clear.'},
+    {title:'Aerial Duels',tip:'Attack the ball early. Time your jump to meet it at the highest point. Use your arms to create space legally.'},
+    {title:'Gym Focus',tip:'Strength through the posterior chain. Romanian deadlifts, hip thrusts, and loaded carries. Power in headers and tackles.'},
+  ],
+  'Full Back':[
+    {title:'Attacking',tip:'Time your overlapping runs. Go when your winger has the ball under control. Return quickly — transition is your biggest test.'},
+    {title:'Defending',tip:'Stay goal-side and force play inside. Don\'t dive in. Delay, set your shape and let cover arrive before you tackle.'},
+    {title:'Crossing',tip:'Get your head up before you cross. Pick your target early. A low cutback is often more dangerous than a high ball.'},
+    {title:'Gym Focus',tip:'Hip flexor strength for repeated sprinting. Single leg exercises to build stride power. Focus on recovery speed.'},
+  ],
+  'Defensive Mid':[
+    {title:'Positioning',tip:'Sit in front of the back four. Never both defensive mids go forward at once. Protect the space in behind.'},
+    {title:'Pressing',tip:'Press intelligently. Set the trap, don\'t just chase. Force play to the side and let teammates squeeze.'},
+    {title:'Distribution',tip:'Keep it simple under pressure. Switch play to the far side when you have time. Be the team\'s heartbeat — calm and reliable.'},
+    {title:'Gym Focus',tip:'Lower body endurance and core anti-rotation. Pallof press, cable rotations, and Bulgarian split squats.'},
+  ],
+  'Central Mid':[
+    {title:'Movement',tip:'Always offer an angle. If the ball goes left, drift right. Create triangles to give options. Never stand still.'},
+    {title:'Press Resistance',tip:'Open your body on the half-turn. Receive across your body so you can play forward quickly. Practice under pressure.'},
+    {title:'Box to Box',tip:'Track runs from behind. If you go forward, someone behind you must cover. Box to box means both ways.'},
+    {title:'Gym Focus',tip:'Aerobic base is key — 90 minutes non-stop. Mix strength work with longer runs or cycling to build capacity.'},
+  ],
+  'Attacking Mid':[
+    {title:'Finding Space',tip:'Drop into pockets between the lines. Receive, turn and face goal quickly. Your job is to link midfield to attack.'},
+    {title:'Final Pass',tip:'Vision beats pace. See the run before it happens. Weight of pass is everything — too hard kills the move.'},
+    {title:'Goal Threat',tip:'Get in the box on set pieces. Arrive late, arrive fast. An attacking mid who scores 10+ a season is invaluable.'},
+    {title:'Gym Focus',tip:'Explosive lower body and hip rotation for shooting power. Med ball rotational throws and single leg plyometrics.'},
+  ],
+  'Winger':[
+    {title:'1v1 Duels',tip:'Take players on with conviction. Commit defenders, then go. Half-hearted dribbles never work. Be direct and decisive.'},
+    {title:'Crossing',tip:'Quality over quantity. Cut inside and shoot if the cross is blocked. Always have two options in your head.'},
+    {title:'Defensive Work',tip:'Track back when you lose the ball. Press from the front and force play backwards. Your work rate sets the tone.'},
+    {title:'Gym Focus',tip:'Sprint mechanics and acceleration. Hip flexor power, glute strength, and ankle stability are key for explosive wide play.'},
+  ],
+  'Striker':[
+    {title:'Movement',tip:'Make runs even when you know the ball won\'t come. Drag defenders, create space for others. Movement is your weapon.'},
+    {title:'Finishing',tip:'In training, always finish — never blast over. Treat every shot in training like it\'s 1-0 down in the 89th minute.'},
+    {title:'Hold-Up Play',tip:'Shield the ball with your body. Feel the defender, then turn. Use your arms to hold position legally.'},
+    {title:'Gym Focus',tip:'Explosive acceleration from standing. Resisted sprints, trap bar deadlifts, and lateral bounding for multi-directional pace.'},
+  ],
+};
+
+const DEFAULT_PROFILE = {
+  name:'', pos:'Striker', age:'', ageBracket:'', goals:[], drillsDone:[], sessions:0, aiMessages:[]
+};
+
+let state = {
+  tab:'profile',
+  profile: {...DEFAULT_PROFILE},
+  progressTab:'goals',
+  aiLoading: false,
+  drillFilter:'all',
+};
+
+function save(){try{localStorage.setItem('pzone1',JSON.stringify({profile:state.profile}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem('pzone1')||'null');if(d&&d.profile)state.profile=d.profile;}catch(e){}}
+load();
+
+function detectBracket(age){
+  const a=parseInt(age);
+  if(!a)return'';
+  if(a<=11)return'kids';
+  if(a<=13)return'u14';
+  if(a<=15)return'u16';
+  if(a<=17)return'u18';
+  if(a<=35)return'adult';
+  return'vet';
+}
+
+function bracketLabel(id){
+  const b=AGE_BRACKETS.find(x=>x.id===id);
+  return b?b.label:'';
+}
+
+function initials(name){return name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()||'?';}
+
+function render(){
+  const isSetup = !state.profile.name || !state.profile.ageBracket;
+  document.getElementById('nav').innerHTML = TABS.map(t=>`<button class="nav-btn${state.tab===t.id?' active':''}" onclick="setTab('${t.id}')"><i class="ti ${t.icon}"></i>${t.label}</button>`).join('');
+  const badge = document.getElementById('age-badge');
+  badge.textContent = state.profile.ageBracket ? bracketLabel(state.profile.ageBracket).toUpperCase() : 'SET UP';
+
+  const c = document.getElementById('content');
+  const views={profile:renderProfile,drills:renderDrills,progress:renderProgress,tips:renderTips,ai:renderAI};
+  c.innerHTML=(views[state.tab]||renderProfile)();
+  attachHandlers();
+}
+
+function setTab(t){state.tab=t;render();}
+
+/* ===== PROFILE ===== */
+function renderProfile(){
+  const p=state.profile;
+  const isNew=!p.name||!p.ageBracket;
+  if(isNew){
+    return`<div class="section-title">Welcome 👋</div>
+    <div class="section-sub">Set up your player profile to get started</div>
+    <div class="setup-card">
+      <div class="setup-icon"><i class="ti ti-user-plus"></i></div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px">Tell us about yourself and we'll personalise everything — drills, tips and AI advice — just for you.</p>
+    </div>
+    ${renderProfileForm(p)}`;
+  }
+  const drills = DRILLS_BY_AGE[p.ageBracket]||[];
+  const done = (p.drillsDone||[]).length;
+  return`
+  <div class="profile-hero">
+    <div class="profile-avatar">${initials(p.name)}</div>
+    <div class="profile-name">${p.name}</div>
+    <div class="profile-pos">${p.pos} · ${bracketLabel(p.ageBracket)} · Age ${p.age}</div>
+    <div class="profile-stats">
+      <div class="pstat"><div class="pstat-num">${p.sessions||0}</div><div class="pstat-label">Sessions</div></div>
+      <div class="pstat"><div class="pstat-num">${done}</div><div class="pstat-label">Drills Done</div></div>
+      <div class="pstat"><div class="pstat-num">${(p.goals||[]).length}</div><div class="pstat-label">Goals Set</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Edit Profile</div>
+    ${renderProfileForm(p)}
+  </div>`;
+}
+
+function renderProfileForm(p){
+  return`<div class="form-row"><label class="form-label">Your Name</label><input class="input" id="p-name" value="${p.name||''}" placeholder="Enter your name"></div>
+  <div class="grid2">
+    <div class="form-row"><label class="form-label">Age</label><input class="input" id="p-age" type="number" value="${p.age||''}" min="5" max="70" placeholder="Age"></div>
+    <div class="form-row"><label class="form-label">Position</label><select class="select" id="p-pos">${POSITIONS.map(pos=>`<option${pos===p.pos?' selected':''}>${pos}</option>`).join('')}</select></div>
+  </div>
+  <div class="form-row"><label class="form-label">Age Group</label>
+    <div class="age-cards">${AGE_BRACKETS.map(b=>`<div class="age-card${p.ageBracket===b.id?' selected':''}" onclick="selectBracket('${b.id}')">
+      <div class="age-card-icon">${b.icon}</div>
+      <div class="age-card-label">${b.label}</div>
+      <div class="age-card-range">${b.range} yrs</div>
+    </div>`).join('')}</div>
+  </div>
+  <button class="btn btn-accent btn-full" onclick="saveProfile()"><i class="ti ti-check"></i>Save Profile</button>`;
+}
+
+function selectBracket(id){state.profile.ageBracket=id;render();}
+function saveProfile(){
+  const name=document.getElementById('p-name')?.value||'';
+  const age=document.getElementById('p-age')?.value||'';
+  const pos=document.getElementById('p-pos')?.value||'Striker';
+  if(!name){alert('Please enter your name');return;}
+  if(!state.profile.ageBracket){
+    state.profile.ageBracket=detectBracket(age)||'adult';
+  }
+  state.profile.name=name;
+  state.profile.age=age;
+  state.profile.pos=pos;
+  save();render();
+}
+
+/* ===== DRILLS ===== */
+function renderDrills(){
+  const p=state.profile;
+  if(!p.ageBracket)return`<div class="section-title">Drills</div><div class="empty-state"><i class="ti ti-user"></i>Set up your profile first to see drills for your age group.</div>`;
+  const drills=DRILLS_BY_AGE[p.ageBracket]||[];
+  const done=p.drillsDone||[];
+  const filters=['all','Low','Medium','High'];
+  const active=state.drillFilter||'all';
+  const filtered=active==='all'?drills:drills.filter(d=>d.intensity===active);
+  const doneCount=drills.filter(d=>done.includes(d.id)).length;
+  return`<div class="section-title">Your Drills</div>
+  <div class="section-sub">${bracketLabel(p.ageBracket)} · ${p.pos} · ${doneCount}/${drills.length} completed today</div>
+  <div class="tab-pills">
+    ${filters.map(f=>`<button class="tab-pill${active===f?' active':''}" onclick="setDrillFilter('${f}')">${f==='all'?'All':f+' Intensity'}</button>`).join('')}
+  </div>
+  ${filtered.map(d=>{
+    const isDone=done.includes(d.id);
+    return`<div class="drill-item${isDone?' done':''}">
+      ${isDone?'<div class="drill-done-badge">✓ Done</div>':''}
+      <div class="drill-header">
+        <div class="drill-icon"><i class="ti ${d.icon}"></i></div>
+        <div class="drill-title">${d.name}</div>
+      </div>
+      <div class="drill-meta">${d.mins} mins · ${d.intensity} Intensity · Focus: ${d.focus}</div>
+      <div class="drill-desc">${d.desc}</div>
+      <button class="btn btn-sm${isDone?' btn-danger':' btn-green'}" onclick="toggleDrill(${d.id})">
+        <i class="ti ${isDone?'ti-x':'ti-check'}"></i>${isDone?'Mark Undone':'Mark Done'}
+      </button>
+    </div>`;
+  }).join('')}
+  <div style="margin-top:16px">
+    <button class="btn btn-sm btn-full" onclick="logSession()"><i class="ti ti-device-floppy"></i>Log This Session</button>
+  </div>`;
+}
+
+function setDrillFilter(f){state.drillFilter=f;render();}
+function toggleDrill(id){
+  if(!state.profile.drillsDone)state.profile.drillsDone=[];
+  const idx=state.profile.drillsDone.indexOf(id);
+  if(idx>-1)state.profile.drillsDone.splice(idx,1);
+  else state.profile.drillsDone.push(id);
+  save();render();
+}
+function logSession(){
+  state.profile.sessions=(state.profile.sessions||0)+1;
+  state.profile.drillsDone=[];
+  save();
+  alert('Session logged! Drills reset for next session.');
+  render();
+}
+
+/* ===== PROGRESS ===== */
+function renderProgress(){
+  const p=state.profile;
+  const goals=p.goals||[];
+  return`<div class="section-title">Progress</div>
+  <div class="section-sub">Track your goals and development</div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-card-label">Sessions</div><div class="big-num">${p.sessions||0}</div></div>
+    <div class="stat-card"><div class="stat-card-label">Goals Set</div><div class="big-num">${goals.length}</div></div>
+  </div>
+  <div class="tab-pills">
+    <button class="tab-pill${state.progressTab==='goals'?' active':''}" onclick="setProgTab('goals')">My Goals</button>
+    <button class="tab-pill${state.progressTab==='add'?' active':''}" onclick="setProgTab('add')">Add Goal</button>
+  </div>
+  ${state.progressTab==='goals'?renderGoalsList(goals):renderAddGoal()}`;
+}
+
+function renderGoalsList(goals){
+  if(!goals.length)return`<div class="empty-state"><i class="ti ti-target"></i>No goals set yet. Tap "Add Goal" to get started.</div>`;
+  return goals.map((g,i)=>`<div class="goal-item">
+    <div class="goal-header">
+      <div class="goal-title">${g.title}</div>
+      <div class="goal-pct">${g.progress}%</div>
+    </div>
+    <div class="goal-bar"><div class="goal-fill${g.progress>=100?' green':''}" style="width:${g.progress}%"></div></div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="updateGoal(${i},-10)"><i class="ti ti-minus"></i>-10%</button>
+      <button class="btn btn-sm btn-accent" onclick="updateGoal(${i},10)"><i class="ti ti-plus"></i>+10%</button>
+      <button class="btn btn-sm btn-danger" onclick="removeGoal(${i})"><i class="ti ti-trash"></i></button>
+    </div>
+  </div>`).join('');
+}
+
+function renderAddGoal(){
+  return`<div class="card">
+    <div class="card-title">New Goal</div>
+    <div class="form-row"><label class="form-label">Goal Title</label><input class="input" id="g-title" placeholder="e.g. Improve weak foot, Score 5 goals..."></div>
+    <div class="form-row"><label class="form-label">Starting Progress (%)</label><input class="input" id="g-prog" type="number" value="0" min="0" max="100"></div>
+    <button class="btn btn-accent btn-full" onclick="addGoal()"><i class="ti ti-plus"></i>Add Goal</button>
+  </div>
+  <div class="card" style="margin-top:0">
+    <div class="card-title">Quick Goals</div>
+    ${['Improve weak foot','Increase sprint speed','Better first touch','Score more goals','Improve heading','Better positioning','Increase stamina','Improve passing accuracy'].map(g=>`<button class="btn btn-sm" style="margin:4px" onclick="quickGoal('${g}')">${g}</button>`).join('')}
+  </div>`;
+}
+
+function setProgTab(t){state.progressTab=t;render();}
+function addGoal(){
+  const title=document.getElementById('g-title')?.value;
+  const prog=parseInt(document.getElementById('g-prog')?.value)||0;
+  if(!title)return;
+  if(!state.profile.goals)state.profile.goals=[];
+  state.profile.goals.push({title,progress:Math.min(100,Math.max(0,prog))});
+  save();state.progressTab='goals';render();
+}
+function quickGoal(title){
+  if(!state.profile.goals)state.profile.goals=[];
+  if(state.profile.goals.find(g=>g.title===title))return;
+  state.profile.goals.push({title,progress:0});
+  save();state.progressTab='goals';render();
+}
+function updateGoal(i,delta){
+  const g=state.profile.goals[i];
+  if(!g)return;
+  g.progress=Math.min(100,Math.max(0,(g.progress||0)+delta));
+  save();render();
+}
+function removeGoal(i){
+  state.profile.goals.splice(i,1);
+  save();render();
+}
+
+/* ===== POSITION TIPS ===== */
+function renderTips(){
+  const p=state.profile;
+  const pos=p.pos||'Striker';
+  const tips=POSITION_TIPS[pos]||[];
+  const allPos=Object.keys(POSITION_TIPS);
+  return`<div class="section-title">Position Tips</div>
+  <div class="section-sub">Advice tailored to your position</div>
+  <div class="tab-pills">${allPos.map(pp=>`<button class="tab-pill${pp===pos?' active':''}" onclick="setTipPos('${pp}')">${pp}</button>`).join('')}</div>
+  ${tips.map(t=>`<div class="pos-tip">
+    <div class="pos-tip-title">${t.title}</div>
+    ${t.tip}
+  </div>`).join('')}`;
+}
+function setTipPos(pos){state.profile.pos=pos;save();render();}
+
+/* ===== AI PLAN ===== */
+function renderAI(){
+  const p=state.profile;
+  if(!p.name||!p.ageBracket){
+    return`<div class="section-title">AI Plan</div><div class="empty-state"><i class="ti ti-user"></i>Set up your profile first to get a personalised AI plan.</div>`;
+  }
+  const msgs=state.profile.aiMessages||[];
+  return`<div class="section-title">AI Plan</div>
+  <div class="section-sub">Personalised fitness, nutrition & mindset for ${p.name}</div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,229,255,0.12);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--accent);flex-shrink:0">${initials(p.name)}</div>
+      <div><div style="font-weight:700;font-size:14px">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.pos} · ${bracketLabel(p.ageBracket)} · Age ${p.age}</div></div>
+    </div>
+  </div>
+  <div class="quick-grid">
+    <button class="btn btn-sm" onclick="quickAI('fitness')" style="justify-content:center"><i class="ti ti-barbell"></i>Gym Plan</button>
+    <button class="btn btn-sm" onclick="quickAI('nutrition')" style="justify-content:center"><i class="ti ti-apple"></i>Nutrition</button>
+    <button class="btn btn-sm" onclick="quickAI('mindset')" style="justify-content:center"><i class="ti ti-brain"></i>Mindset</button>
+    <button class="btn btn-sm" onclick="quickAI('plan')" style="justify-content:center"><i class="ti ti-calendar"></i>Full Plan</button>
+  </div>
+  <div id="ai-msgs">${renderAIMsgs()}</div>
+  <div class="card" style="margin-top:0">
+    <div style="display:flex;gap:8px">
+      <input class="input" id="ai-input" placeholder="Ask anything..." style="flex:1">
+      <button class="btn btn-accent" onclick="sendAI()" style="flex-shrink:0;padding:10px 14px"><i class="ti ti-send"></i></button>
+    </div>
+  </div>`;
+}
+
+function renderAIMsgs(){
+  const msgs=state.profile.aiMessages||[];
+  if(!msgs.length)return`<div class="empty-state" style="padding:20px"><i class="ti ti-robot" style="font-size:32px;display:block;margin-bottom:8px"></i>Tap a button above for your personalised plan, or type your own question.</div>`;
+  return msgs.map(m=>{
+    if(m.role==='user')return`<div class="ai-bubble user">${m.content}</div>`;
+    return`<div><div class="ai-label"><i class="ti ti-robot" style="font-size:13px;color:var(--accent)"></i>AI Coach</div><div class="ai-bubble">${m.loading?'<span class="loading-dots">Thinking</span>':m.content.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')}</div></div>`;
+  }).join('');
+}
+
+function quickAI(type){
+  const p=state.profile;
+  const ageNote=`Age: ${p.age}, Age group: ${bracketLabel(p.ageBracket)}`;
+  const prompts={
+    fitness:`Build me a gym and fitness programme as a ${p.pos}. ${ageNote}. Tailor it to my age group — make sure exercises are appropriate and safe.`,
+    nutrition:`Give me a nutrition plan as a ${p.pos}. ${ageNote}. Include meal timing around training, what to eat and avoid, and hydration advice appropriate for my age.`,
+    mindset:`Give me mindset and mental performance advice as a ${p.pos}. ${ageNote}. Include confidence, dealing with mistakes, focus and pre-match routine.`,
+    plan:`Create a full weekly personal development plan for me as a ${p.pos}. ${ageNote}. Include training sessions, gym, nutrition, recovery and mindset work.`,
+  };
+  const inp=document.getElementById('ai-input');
+  if(inp)inp.value=prompts[type];
+  sendAI();
+}
+
+async function sendAI(){
+  const inp=document.getElementById('ai-input');
+  if(!inp||!inp.value.trim())return;
+  const msg=inp.value.trim();inp.value='';
+  const p=state.profile;
+  if(!state.profile.aiMessages)state.profile.aiMessages=[];
+  state.profile.aiMessages.push({role:'user',content:msg});
+  state.profile.aiMessages.push({role:'assistant',content:'',loading:true});
+  document.getElementById('ai-msgs').innerHTML=renderAIMsgs();
+  const history=state.profile.aiMessages.filter(m=>!m.loading).map(m=>({role:m.role,content:m.content}));
+  history.unshift({role:'user',content:`My profile: Name: ${p.name}, Position: ${p.pos}, Age: ${p.age}, Age group: ${bracketLabel(p.ageBracket)}. Sessions completed: ${p.sessions||0}. Goals: ${(p.goals||[]).map(g=>g.title).join(', ')||'none set'}.`});
+  const system=`You are an expert football (soccer) player development coach, fitness trainer and sports nutritionist working with players of all ages from 5 to 60+. Always tailor advice to the player's exact age group — a 7-year-old needs fun and basic skills, a 16-year-old needs technical development, an adult needs performance and maintenance, a veteran needs injury prevention. Always be age-appropriate, safe, encouraging and specific. Format responses with clear sections. Be motivating and practical.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system,messages:history})});
+    const data=await res.json();
+    const text=data.content?.map(b=>b.text||'').join('')||'No response received.';
+    state.profile.aiMessages.pop();
+    state.profile.aiMessages.push({role:'assistant',content:text});
+  }catch(e){
+    state.profile.aiMessages.pop();
+    state.profile.aiMessages.push({role:'assistant',content:'Could not connect. Check your internet and try again.'});
+  }
+  save();
+  const el=document.getElementById('ai-msgs');
+  if(el){el.innerHTML=renderAIMsgs();el.scrollTop=el.scrollHeight;}
+}
+
+function attachHandlers(){
+  const inp=document.getElementById('ai-input');
+  if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}});
+}
+
+render();
+
+if('serviceWorker' in navigator){
+  const swCode=`const CACHE='pzone-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>{self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+</script>
+</body>
+</html>
