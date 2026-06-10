@@ -1,6 +1,6 @@
 {
-  "name": "A&G Player Zone",
-  "short_name": "A&G Player Zone",
+  "name": "AG Player Zone",
+  "short_name": "AG Player Zone",
   "description": "Top Training, For all Levels",
   "start_url": "./player-zone.html",
   "display": "standalone",
